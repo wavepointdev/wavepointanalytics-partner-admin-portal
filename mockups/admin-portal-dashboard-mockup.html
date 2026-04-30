@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, viewport-fit=cover" name="viewport"/>
+<title>Admin Portal — Dashboard Mockup | WavePoint Analytics</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<script>
+  tailwind.config = {
+    darkMode: "class",
+    theme: {
+      extend: {
+        colors: {
+          "surface": "#0b1326",
+          "surface-container-low": "#131b2e",
+          "surface-container": "#171f33",
+          "surface-container-high": "#222a3d",
+          "surface-container-highest": "#2d3449",
+          "on-surface": "#dae2fd",
+          "on-surface-variant": "#c2c6d6",
+          "outline": "#8c909f",
+          "outline-variant": "#424754",
+          "primary": "#adc6ff",
+          "primary-container": "#4d8eff",
+          "on-primary": "#002e6a",
+          "secondary": "#4edea3",
+          "tertiary": "#a4c9ff",
+          "warning": "#ffb86b",
+          "error": "#ff7b7b",
+        },
+        fontFamily: { headline: ["Manrope"], body: ["Inter"], mono: ["JetBrains Mono"] },
+      },
+    },
+  };
+</script>
+<style>
+  .material-symbols-outlined { font-variation-settings:'FILL' 0,'wght' 400,'GRAD' 0,'opsz' 24; }
+  html { scroll-behavior:smooth; }
+  body {
+    background-color:#0b1326; color:#dae2fd;
+    font-family:'Inter',sans-serif; min-height:100vh;
+    -webkit-font-smoothing:antialiased;
+  }
+
+  .ambient-bg {
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(ellipse at 15% 5%, rgba(77,142,255,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 85% 95%, rgba(255,184,107,0.04) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 50%, rgba(173,198,255,0.02) 0%, transparent 70%);
+  }
+  .ambient-bg::after {
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(90deg, rgba(255,255,255,0.012) 1px, transparent 1px),
+      linear-gradient(rgba(255,255,255,0.012) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 75%);
+  }
+
+  .glass {
+    background: rgba(255,255,255,0.035);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.07);
+  }
+  .glass-elevated {
+    background: rgba(255,255,255,0.055);
+    backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px);
+    border: 1px solid rgba(255,255,255,0.11);
+  }
+  .glass-hover { transition: background 0.2s, border-color 0.2s, transform 0.2s; }
+  .glass-hover:hover { background: rgba(255,255,255,0.06); border-color: rgba(173,198,255,0.22); }
+
+  /* Admin-specific badge */
+  .badge-admin { background:rgba(255,184,107,0.12); color:#ffb86b; border:1px solid rgba(255,184,107,0.32); }
+  .badge-status-ok   { background:rgba(78,222,163,0.10); color:#4edea3; border:1px solid rgba(78,222,163,0.25); }
+  .badge-status-warn { background:rgba(255,184,107,0.10); color:#ffb86b; border:1px solid rgba(255,184,107,0.28); }
+  .badge-status-err  { background:rgba(255,123,123,0.10); color:#ff7b7b; border:1px solid rgba(255,123,123,0.28); }
+  .badge-live        { background:rgba(78,222,163,0.10); color:#4edea3; border:1px solid rgba(78,222,163,0.22); }
+
+  @keyframes pulse-dot {
+    0%,100% { opacity:1; transform:scale(1); }
+    50% { opacity:0.5; transform:scale(1.15); }
+  }
+  .pulse-dot { animation: pulse-dot 2.2s ease-in-out infinite; }
+
+  *::-webkit-scrollbar { width:8px; height:8px; }
+  *::-webkit-scrollbar-track { background:transparent; }
+  *::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:4px; }
+  *::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.14); }
+
+  @keyframes slide-up {
+    from { opacity:0; transform:translateY(14px); }
+    to   { opacity:1; transform:translateY(0); }
+  }
+  .stagger { opacity:0; animation: slide-up 0.55s cubic-bezier(0.22,1,0.36,1) forwards; }
+  .stagger-1 { animation-delay: 0.04s; }
+  .stagger-2 { animation-delay: 0.10s; }
+  .stagger-3 { animation-delay: 0.16s; }
+  .stagger-4 { animation-delay: 0.22s; }
+  .stagger-5 { animation-delay: 0.28s; }
+  .stagger-6 { animation-delay: 0.34s; }
+  .stagger-7 { animation-delay: 0.40s; }
+  .stagger-8 { animation-delay: 0.46s; }
+
+  .nav-item {
+    display:flex; align-items:center; gap:0.75rem; padding:0.625rem 0.875rem;
+    border-radius:0.75rem; color:#c2c6d6; font-weight:500; font-size:0.875rem;
+    transition: background 0.18s, color 0.18s;
+    cursor:pointer; border:1px solid transparent;
+  }
+  .nav-item:hover { background:rgba(255,255,255,0.04); color:#dae2fd; }
+  .nav-item.active {
+    background:rgba(173,198,255,0.10); color:#adc6ff;
+    border-color:rgba(173,198,255,0.22);
+  }
+  .nav-item .material-symbols-outlined { font-size:20px; }
+
+  .anno-pin {
+    display:inline-flex; align-items:center; justify-content:center;
+    width:20px; height:20px; border-radius:50%;
+    background:rgba(255,184,107,0.18); color:#ffb86b;
+    border:1px solid rgba(255,184,107,0.45);
+    font-size:10px; font-weight:800; font-family:'Manrope',sans-serif;
+    cursor:help;
+  }
+
+  .notes-panel {
+    position:fixed; top:0; right:0; height:100vh; width:480px; max-width:92vw;
+    background:#0f1a2e; border-left:1px solid rgba(255,255,255,0.08);
+    z-index:100; transform:translateX(100%);
+    transition:transform 0.35s cubic-bezier(0.22,1,0.36,1);
+    overflow-y:auto;
+  }
+  .notes-panel.open { transform:translateX(0); }
+
+  .section-eyebrow {
+    font-family:'Manrope',sans-serif; font-weight:700;
+    font-size:0.6875rem; letter-spacing:0.14em;
+    text-transform:uppercase; color:#4edea3;
+  }
+
+  tbody tr { transition: background 0.15s; }
+  tbody tr:hover { background:rgba(255,255,255,0.025); }
+
+  .soft-sep { border-top:1px solid rgba(255,255,255,0.05); }
+
+  /* KPI accent */
+  .kpi-accent-bar { background: linear-gradient(180deg, #adc6ff 0%, transparent 100%); }
+
+  /* Status traffic light dots */
+  .tl-dot { width:8px; height:8px; border-radius:50%; }
+  .tl-ok  { background:#4edea3; box-shadow:0 0 10px rgba(78,222,163,0.5); }
+  .tl-warn{ background:#ffb86b; box-shadow:0 0 10px rgba(255,184,107,0.5); }
+  .tl-err { background:#ff7b7b; box-shadow:0 0 10px rgba(255,123,123,0.5); }
+
+  /* Leaderboard rank medals */
+  .rank-1 { background:linear-gradient(135deg,#ffd36b,#ff9e52); color:#3a1800; }
+  .rank-2 { background:linear-gradient(135deg,#d9d9d9,#8b8b8b); color:#1a1a1a; }
+  .rank-3 { background:linear-gradient(135deg,#cd7f32,#8b5a2b); color:#ffffff; }
+  .rank-n { background:rgba(255,255,255,0.06); color:#c2c6d6; }
+</style>
+</head>
+<body class="font-body">
+
+<div class="ambient-bg"></div>
+
+<!-- Admin mockup banner — internal-only distinction -->
+<div class="relative z-40 w-full py-1.5 text-center text-[11px] font-semibold tracking-wider uppercase"
+     style="background:linear-gradient(90deg,rgba(255,184,107,0.18),rgba(255,123,123,0.08));color:#ffb86b;border-bottom:1px solid rgba(255,184,107,0.30);letter-spacing:0.18em;">
+  Mockup · WavePoint Admin Portal · v0.1 · Internal Use Only · Founders
+</div>
+
+<div class="relative z-10 flex min-h-[calc(100vh-28px)]">
+
+  <!-- ═══════════════════════════ SIDEBAR NAV ═══════════════════════════ -->
+  <aside class="hidden lg:flex flex-col w-64 shrink-0 glass border-r border-white/5 px-4 py-5 sticky top-0 h-[calc(100vh-28px)]">
+
+    <!-- Brand -->
+    <div class="flex items-center gap-2.5 mb-7 px-2">
+      <div class="w-9 h-9 rounded-xl flex items-center justify-center"
+           style="background:linear-gradient(135deg,#ffb86b 0%,#ff9e52 100%);box-shadow:0 4px 18px rgba(255,184,107,0.25);">
+        <span class="font-headline font-black text-[#3a1800] text-lg leading-none">W</span>
+      </div>
+      <div class="leading-tight">
+        <div class="font-headline font-black text-on-surface text-[0.95rem]">WavePoint</div>
+        <div class="text-[10px] uppercase tracking-widest text-warning font-bold">Admin Portal</div>
+      </div>
+    </div>
+
+    <!-- Nav -->
+    <nav class="flex flex-col gap-0.5">
+      <div class="nav-item active">
+        <span class="material-symbols-outlined">space_dashboard</span> Dashboard
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">person_search</span> Customers
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">attach_money</span> Revenue
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">inventory_2</span> Products
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">handshake</span> Partners
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">gpp_maybe</span> Risk
+        <span class="ml-auto text-[10px] px-1.5 py-0.5 rounded-full badge-status-warn font-bold">4</span>
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">monitor_heart</span> Operations
+      </div>
+
+      <div class="soft-sep my-3 mx-2"></div>
+
+      <div class="nav-item">
+        <span class="material-symbols-outlined">history_edu</span> Audit Log
+      </div>
+      <div class="nav-item">
+        <span class="material-symbols-outlined">tune</span> Settings
+      </div>
+    </nav>
+
+    <!-- User chip -->
+    <div class="mt-auto">
+      <div class="glass-elevated rounded-xl p-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-full flex items-center justify-center font-bold text-sm"
+             style="background:linear-gradient(135deg,#ffb86b,#ff9e52);color:#3a1800;">JY</div>
+        <div class="leading-tight min-w-0">
+          <div class="text-sm font-semibold text-on-surface truncate">Jason Yingling</div>
+          <div class="text-[10px] uppercase tracking-widest font-bold mt-0.5 inline-block px-1.5 py-0.5 rounded-full badge-admin">
+            Admin · COO
+          </div>
+        </div>
+        <span class="material-symbols-outlined text-on-surface-variant ml-auto cursor-pointer hover:text-on-surface" style="font-size:20px;">logout</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ═══════════════════════════ MAIN CONTENT ═══════════════════════════ -->
+  <main class="flex-1 min-w-0 px-5 md:px-8 py-6 md:py-8 max-w-[1600px] mx-auto w-full">
+
+    <!-- Top bar -->
+    <div class="flex flex-col md:flex-row md:items-end md:justify-between gap-4 mb-6 stagger stagger-1">
+      <div>
+        <div class="flex items-center gap-2 mb-1.5">
+          <span class="section-eyebrow">Business Intelligence · Founders view</span>
+          <span class="anno-pin" title="Note 1">1</span>
+        </div>
+        <h1 class="font-headline font-black text-on-surface text-[2rem] md:text-[2.4rem] leading-none tracking-tight">
+          Welcome back, Jason
+        </h1>
+        <div class="flex items-center gap-3 mt-2 text-sm text-on-surface-variant">
+          <span class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-secondary pulse-dot"></span>
+            All systems nominal
+          </span>
+          <span class="text-outline-variant">·</span>
+          <span>Last refresh 3 min ago</span>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <div class="glass rounded-xl px-3 py-2 flex items-center gap-2 text-sm cursor-pointer glass-hover">
+          <span class="material-symbols-outlined text-on-surface-variant" style="font-size:18px;">date_range</span>
+          <span class="text-on-surface font-medium">April 2026 (MTD)</span>
+          <span class="material-symbols-outlined text-outline" style="font-size:18px;">expand_more</span>
+        </div>
+        <button class="glass-elevated rounded-xl px-3 py-2 flex items-center gap-2 text-sm font-semibold text-on-surface glass-hover">
+          <span class="material-symbols-outlined" style="font-size:18px;">download</span>
+          Export
+        </button>
+      </div>
+    </div>
+
+    <!-- ─────────── SYSTEM STATUS STRIP ─────────── -->
+    <section class="glass rounded-2xl p-4 mb-6 stagger stagger-2">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="section-eyebrow">System Status <span class="anno-pin ml-1" title="Note 2">2</span></span>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+
+        <div class="flex items-center gap-3">
+          <div class="tl-dot tl-ok"></div>
+          <div class="min-w-0">
+            <div class="text-xs text-on-surface-variant">Stripe Webhooks</div>
+            <div class="text-sm font-semibold text-on-surface truncate">Last event 2m ago</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="tl-dot tl-ok"></div>
+          <div class="min-w-0">
+            <div class="text-xs text-on-surface-variant">Rewardful Sync</div>
+            <div class="text-sm font-semibold text-on-surface truncate">Completed 4:15 AM</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="tl-dot tl-warn"></div>
+          <div class="min-w-0">
+            <div class="text-xs text-on-surface-variant">NinjaTrader Delivery</div>
+            <div class="text-sm font-semibold text-on-surface truncate">1 pending grant</div>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <div class="tl-dot tl-warn"></div>
+          <div class="min-w-0">
+            <div class="text-xs text-on-surface-variant">Open Risk Alerts</div>
+            <div class="text-sm font-semibold text-on-surface truncate">4 requiring review</div>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ─────────── HERO KPIs ─────────── -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+
+      <!-- MRR -->
+      <div class="glass rounded-2xl p-5 relative overflow-hidden stagger stagger-3">
+        <div class="absolute left-0 top-0 bottom-0 w-[3px] kpi-accent-bar opacity-80"></div>
+        <div class="flex items-start justify-between mb-3">
+          <div class="section-eyebrow">MRR</div>
+          <span class="material-symbols-outlined text-primary" style="font-size:18px;">trending_up</span>
+        </div>
+        <div class="font-headline font-black text-3xl md:text-4xl text-on-surface leading-none tracking-tight">$128,470</div>
+        <div class="flex items-center gap-1 mt-2 text-xs">
+          <span class="text-secondary font-semibold">+8.4%</span>
+          <span class="text-on-surface-variant">vs. March</span>
+        </div>
+      </div>
+
+      <!-- Active subscribers -->
+      <div class="glass rounded-2xl p-5 relative overflow-hidden stagger stagger-4">
+        <div class="flex items-start justify-between mb-3">
+          <div class="section-eyebrow" style="color:#8c909f;">Active Subscribers</div>
+          <span class="material-symbols-outlined text-outline" style="font-size:18px;">group</span>
+        </div>
+        <div class="font-headline font-black text-3xl md:text-4xl text-on-surface leading-none tracking-tight">847</div>
+        <div class="flex items-center gap-1 mt-2 text-xs">
+          <span class="text-secondary font-semibold">+62</span>
+          <span class="text-on-surface-variant">net new this month</span>
+        </div>
+      </div>
+
+      <!-- Active trials -->
+      <div class="glass rounded-2xl p-5 relative overflow-hidden stagger stagger-5">
+        <div class="flex items-start justify-between mb-3">
+          <div class="section-eyebrow" style="color:#8c909f;">Active Trials</div>
+          <span class="material-symbols-outlined text-outline" style="font-size:18px;">bolt</span>
+        </div>
+        <div class="font-headline font-black text-3xl md:text-4xl text-on-surface leading-none tracking-tight">127</div>
+        <div class="flex items-center gap-1 mt-2 text-xs text-on-surface-variant">
+          Trial→paid: <span class="text-secondary font-semibold ml-1">48.2%</span>
+        </div>
+      </div>
+
+      <!-- Churn -->
+      <div class="glass rounded-2xl p-5 relative overflow-hidden stagger stagger-6">
+        <div class="flex items-start justify-between mb-3">
+          <div class="section-eyebrow" style="color:#8c909f;">Monthly Churn</div>
+          <span class="material-symbols-outlined text-outline" style="font-size:18px;">compare_arrows</span>
+        </div>
+        <div class="font-headline font-black text-3xl md:text-4xl text-on-surface leading-none tracking-tight">3.2%</div>
+        <div class="flex items-center gap-1 mt-2 text-xs">
+          <span class="text-warning font-semibold">+0.4pp</span>
+          <span class="text-on-surface-variant">vs. March</span>
+          <span class="anno-pin ml-auto" title="Note 3">3</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── MRR TREND + REVENUE RECOGNITION ─────────── -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+
+      <div class="glass rounded-2xl p-6 lg:col-span-2 stagger stagger-7">
+        <div class="flex items-center justify-between mb-2">
+          <div>
+            <div class="section-eyebrow mb-1">MRR Growth</div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">Last 6 months · stacked by plan</h3>
+          </div>
+          <div class="flex items-center gap-3 text-xs">
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background:#4edea3;"></span>
+              <span class="text-on-surface-variant">Standard</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background:#adc6ff;"></span>
+              <span class="text-on-surface-variant">Pro</span>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full" style="background:#ffb86b;"></span>
+              <span class="text-on-surface-variant">Terminal</span>
+            </div>
+          </div>
+        </div>
+        <div id="mrr-chart" style="width:100%;height:280px;"></div>
+      </div>
+
+      <!-- Revenue Recognition -->
+      <div class="glass-elevated rounded-2xl p-6 stagger stagger-7" style="background:linear-gradient(180deg,rgba(173,198,255,0.05),rgba(255,255,255,0.04));">
+        <div class="section-eyebrow mb-1">Revenue Recognition <span class="anno-pin ml-1" title="Note 4">4</span></div>
+        <h3 class="font-headline font-bold text-on-surface text-lg mb-5">Booked vs. net</h3>
+
+        <!-- Booked -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-xs text-on-surface-variant">Booked MRR</div>
+            <div class="font-headline font-bold text-on-surface">$128,470</div>
+          </div>
+          <div class="h-1.5 rounded-full" style="background:rgba(173,198,255,0.6);"></div>
+        </div>
+
+        <!-- Net -->
+        <div class="mb-5">
+          <div class="flex items-center justify-between mb-1">
+            <div class="text-xs text-on-surface-variant">Net MRR <span class="text-outline">(after 30-day window)</span></div>
+            <div class="font-headline font-bold text-secondary">$124,550</div>
+          </div>
+          <div class="h-1.5 rounded-full" style="background:rgba(78,222,163,0.6);width:97%;"></div>
+        </div>
+
+        <!-- Deltas -->
+        <div class="glass rounded-xl p-3 space-y-2 text-xs">
+          <div class="flex items-center justify-between">
+            <span class="text-on-surface-variant">Refund liability (est.)</span>
+            <span class="text-warning font-semibold">−$2,842</span>
+          </div>
+          <div class="flex items-center justify-between">
+            <span class="text-on-surface-variant">Chargeback reserves</span>
+            <span class="text-warning font-semibold">−$1,078</span>
+          </div>
+          <div class="flex items-center justify-between border-t border-white/10 pt-2">
+            <span class="text-on-surface-variant font-semibold">Net of reserves</span>
+            <span class="text-secondary font-headline font-bold">$124,550</span>
+          </div>
+        </div>
+
+        <button class="w-full mt-4 glass rounded-xl py-2 text-xs font-semibold glass-hover flex items-center justify-center gap-2">
+          <span class="material-symbols-outlined" style="font-size:16px;">receipt_long</span>
+          View revenue detail
+        </button>
+      </div>
+    </section>
+
+    <!-- ─────────── TRIAL FUNNEL + PRODUCT SKU ADOPTION ─────────── -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+
+      <!-- Trial funnel -->
+      <div class="glass rounded-2xl p-6 stagger stagger-8">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <div class="section-eyebrow mb-1">Trial → Paid Funnel</div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">All-business conversion · last 30 days</h3>
+          </div>
+        </div>
+
+        <div class="space-y-3">
+          <!-- Stage 1: Visits -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-sm font-semibold text-on-surface">Site Visits</span>
+              <span class="font-headline font-black text-on-surface">28,142</span>
+            </div>
+            <div class="h-8 rounded-lg"
+                 style="background:linear-gradient(90deg,rgba(173,198,255,0.20),rgba(78,222,163,0.08));border:1px solid rgba(173,198,255,0.2);width:100%;"></div>
+          </div>
+
+          <!-- Stage 2: Signups -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-on-surface">Account Signups</span>
+                <span class="text-[10px] uppercase tracking-widest font-bold text-secondary">5.9%</span>
+              </div>
+              <span class="font-headline font-black text-on-surface">1,672</span>
+            </div>
+            <div class="h-8 rounded-lg"
+                 style="background:linear-gradient(90deg,rgba(173,198,255,0.20),rgba(78,222,163,0.08));border:1px solid rgba(173,198,255,0.2);width:62%;"></div>
+          </div>
+
+          <!-- Stage 3: Trials -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-on-surface">Trials Started</span>
+                <span class="text-[10px] uppercase tracking-widest font-bold text-secondary">28.5%</span>
+              </div>
+              <span class="font-headline font-black text-on-surface">476</span>
+            </div>
+            <div class="h-8 rounded-lg"
+                 style="background:linear-gradient(90deg,rgba(173,198,255,0.20),rgba(78,222,163,0.08));border:1px solid rgba(173,198,255,0.2);width:42%;"></div>
+          </div>
+
+          <!-- Stage 4: Paid -->
+          <div>
+            <div class="flex items-center justify-between mb-1.5">
+              <div class="flex items-center gap-2">
+                <span class="text-sm font-semibold text-secondary">Paid Conversions</span>
+                <span class="text-[10px] uppercase tracking-widest font-bold text-secondary">48.2%</span>
+              </div>
+              <span class="font-headline font-black text-secondary">229</span>
+            </div>
+            <div class="h-8 rounded-lg"
+                 style="background:linear-gradient(90deg,rgba(78,222,163,0.30),rgba(78,222,163,0.08));border:1px solid rgba(78,222,163,0.35);width:28%;"></div>
+          </div>
+        </div>
+
+        <div class="soft-sep my-4"></div>
+        <div class="grid grid-cols-3 gap-2 text-center">
+          <div>
+            <div class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Overall</div>
+            <div class="font-headline font-bold text-on-surface">0.81%</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">Blended ARPU</div>
+            <div class="font-headline font-bold text-on-surface">$152</div>
+          </div>
+          <div>
+            <div class="text-[10px] uppercase tracking-widest font-bold text-outline mb-1">New MRR</div>
+            <div class="font-headline font-bold text-secondary">+$34,810</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product SKU adoption -->
+      <div class="glass rounded-2xl p-6 stagger stagger-8">
+        <div class="flex items-center justify-between mb-5">
+          <div>
+            <div class="section-eyebrow mb-1">Product Mix <span class="anno-pin ml-1" title="Note 5">5</span></div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">Subscribers by indicator</h3>
+          </div>
+          <div class="text-xs text-on-surface-variant">NinjaTrader · 847 subs</div>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div id="product-pie" style="width:100%;height:200px;"></div>
+          <div class="flex flex-col justify-center space-y-2.5 text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:#4edea3;"></span>
+              <span class="flex-1 text-on-surface font-semibold">VWAP Wave · Pro</span>
+              <span class="text-on-surface-variant">382</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:#adc6ff;"></span>
+              <span class="flex-1 text-on-surface font-semibold">VWAP Wave · Terminal</span>
+              <span class="text-on-surface-variant">164</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:#a4c9ff;"></span>
+              <span class="flex-1 text-on-surface font-semibold">EMA Ribbons · Pro</span>
+              <span class="text-on-surface-variant">142</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:#ffb86b;"></span>
+              <span class="flex-1 text-on-surface font-semibold">VWAP Wave · Standard</span>
+              <span class="text-on-surface-variant">97</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-sm" style="background:#c2c6d6;"></span>
+              <span class="flex-1 text-on-surface font-semibold">Order Flow Delta</span>
+              <span class="text-on-surface-variant">62</span>
+            </div>
+          </div>
+        </div>
+        <div class="soft-sep my-4"></div>
+        <div class="flex items-center justify-between text-xs">
+          <span class="text-on-surface-variant">TradingView products</span>
+          <span class="text-outline italic">Coming in phase 2</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ─────────── PARTNER LEADERBOARD + GEO ─────────── -->
+    <section class="grid grid-cols-1 lg:grid-cols-3 gap-4 mb-6">
+
+      <!-- Partner leaderboard -->
+      <div class="glass rounded-2xl lg:col-span-2 stagger">
+        <div class="flex items-center justify-between p-5 pb-3">
+          <div>
+            <div class="section-eyebrow mb-1">Partner Leaderboard <span class="anno-pin ml-1" title="Note 6">6</span></div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">Top performers · last 30 days</h3>
+          </div>
+          <button class="text-xs font-semibold text-primary hover:text-on-surface flex items-center gap-1">
+            All partners <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+          </button>
+        </div>
+
+        <div class="border-t border-white/5 overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="text-[10px] uppercase tracking-widest font-bold text-outline">
+                <th class="text-left py-2.5 px-5">Rank · Partner</th>
+                <th class="text-left py-2.5 px-2">Conversions</th>
+                <th class="text-left py-2.5 px-2">New MRR</th>
+                <th class="text-left py-2.5 px-2">Commission (owed)</th>
+                <th class="py-2.5 px-5">Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr class="border-t border-white/5">
+                <td class="py-3 px-5">
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-headline rank-1">1</span>
+                    <div>
+                      <div class="font-semibold text-on-surface">TradingEdge Academy</div>
+                      <div class="text-[11px] text-on-surface-variant">marcus@tradingedge.co</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">23</td>
+                <td class="py-3 px-2 font-headline font-semibold text-secondary">$3,497</td>
+                <td class="py-3 px-2 font-headline font-semibold text-on-surface">$1,842</td>
+                <td class="py-3 px-5"><span class="text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full badge-live">Active</span></td>
+              </tr>
+              <tr class="border-t border-white/5">
+                <td class="py-3 px-5">
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-headline rank-2">2</span>
+                    <div>
+                      <div class="font-semibold text-on-surface">Futures Flow TV</div>
+                      <div class="text-[11px] text-on-surface-variant">hello@futuresflow.tv</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">18</td>
+                <td class="py-3 px-2 font-headline font-semibold text-secondary">$2,910</td>
+                <td class="py-3 px-2 font-headline font-semibold text-on-surface">$1,354</td>
+                <td class="py-3 px-5"><span class="text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full badge-live">Active</span></td>
+              </tr>
+              <tr class="border-t border-white/5">
+                <td class="py-3 px-5">
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-headline rank-3">3</span>
+                    <div>
+                      <div class="font-semibold text-on-surface">The ES Trader</div>
+                      <div class="text-[11px] text-on-surface-variant">contact@theestrader.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">14</td>
+                <td class="py-3 px-2 font-headline font-semibold text-secondary">$2,128</td>
+                <td class="py-3 px-2 font-headline font-semibold text-on-surface">$1,031</td>
+                <td class="py-3 px-5"><span class="text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full badge-live">Active</span></td>
+              </tr>
+              <tr class="border-t border-white/5">
+                <td class="py-3 px-5">
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-headline rank-n">4</span>
+                    <div>
+                      <div class="font-semibold text-on-surface">Liquidity Labs</div>
+                      <div class="text-[11px] text-on-surface-variant">team@liquiditylabs.io</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">9</td>
+                <td class="py-3 px-2 font-headline font-semibold text-secondary">$1,377</td>
+                <td class="py-3 px-2 font-headline font-semibold text-on-surface">$610</td>
+                <td class="py-3 px-5"><span class="text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full badge-live">Active</span></td>
+              </tr>
+              <tr class="border-t border-white/5">
+                <td class="py-3 px-5">
+                  <div class="flex items-center gap-3">
+                    <span class="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-black font-headline rank-n">5</span>
+                    <div>
+                      <div class="font-semibold text-on-surface">Scalp Daily</div>
+                      <div class="text-[11px] text-on-surface-variant">mark@scalpdaily.com</div>
+                    </div>
+                  </div>
+                </td>
+                <td class="py-3 px-2 font-headline font-bold text-on-surface">6</td>
+                <td class="py-3 px-2 font-headline font-semibold text-secondary">$912</td>
+                <td class="py-3 px-2 font-headline font-semibold text-on-surface">$406</td>
+                <td class="py-3 px-5"><span class="text-[10px] uppercase tracking-widest font-bold px-2 py-1 rounded-full badge-status-warn">Onboarding</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Geographic -->
+      <div class="glass rounded-2xl p-5 stagger">
+        <div>
+          <div class="section-eyebrow mb-1">Geographic Top 5 <span class="anno-pin ml-1" title="Note 7">7</span></div>
+          <h3 class="font-headline font-bold text-on-surface text-lg mb-4">Active subscribers</h3>
+        </div>
+
+        <div class="space-y-3.5">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-on-surface flex items-center gap-2">🇺🇸 United States</span>
+              <span class="text-sm font-headline font-bold text-on-surface">581</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5"><div class="h-full rounded-full" style="background:linear-gradient(90deg,#4edea3,#adc6ff);width:100%;"></div></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-on-surface flex items-center gap-2">🇬🇧 United Kingdom</span>
+              <span class="text-sm font-headline font-bold text-on-surface">92</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5"><div class="h-full rounded-full" style="background:linear-gradient(90deg,#4edea3,#adc6ff);width:16%;"></div></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-on-surface flex items-center gap-2">🇨🇦 Canada</span>
+              <span class="text-sm font-headline font-bold text-on-surface">68</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5"><div class="h-full rounded-full" style="background:linear-gradient(90deg,#4edea3,#adc6ff);width:12%;"></div></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-on-surface flex items-center gap-2">🇦🇺 Australia</span>
+              <span class="text-sm font-headline font-bold text-on-surface">44</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5"><div class="h-full rounded-full" style="background:linear-gradient(90deg,#4edea3,#adc6ff);width:8%;"></div></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-sm text-on-surface flex items-center gap-2">🇩🇪 Germany</span>
+              <span class="text-sm font-headline font-bold text-on-surface">27</span>
+            </div>
+            <div class="h-1.5 rounded-full bg-white/5"><div class="h-full rounded-full" style="background:linear-gradient(90deg,#4edea3,#adc6ff);width:5%;"></div></div>
+          </div>
+
+          <div>
+            <div class="flex items-center justify-between pt-1">
+              <span class="text-sm text-on-surface-variant">35 other countries</span>
+              <span class="text-sm font-headline font-bold text-on-surface-variant">35</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="soft-sep my-4"></div>
+        <div class="text-xs text-on-surface-variant leading-relaxed">
+          Data sourced from Stripe Tax billing country. Full view includes US-state breakdown, VAT/sales-tax jurisdictions, and per-region MRR.
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─────────── RISK + AUDIT LOG ─────────── -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-8">
+
+      <!-- Risk alerts -->
+      <div class="glass rounded-2xl stagger" style="border-color:rgba(255,184,107,0.22);">
+        <div class="flex items-center justify-between p-5 pb-3">
+          <div>
+            <div class="section-eyebrow mb-1" style="color:#ffb86b;">Risk Alerts <span class="anno-pin ml-1" title="Note 8">8</span></div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">4 items need review</h3>
+          </div>
+          <button class="text-xs font-semibold text-warning hover:text-on-surface flex items-center gap-1">
+            View all <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+          </button>
+        </div>
+
+        <div class="border-t border-white/5">
+          <!-- Alert 1 -->
+          <div class="p-4 border-b border-white/5 glass-hover cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(255,123,123,0.12);">
+                <span class="material-symbols-outlined text-error" style="font-size:18px;">priority_high</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-on-surface">Chargeback dispute filed</span>
+                  <span class="text-[10px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded-full badge-status-err">High</span>
+                </div>
+                <div class="text-xs text-on-surface-variant mt-0.5">t***@g***.com · $299 · VWAP Wave Terminal · 2h ago</div>
+              </div>
+              <span class="material-symbols-outlined text-outline" style="font-size:18px;">chevron_right</span>
+            </div>
+          </div>
+
+          <!-- Alert 2 -->
+          <div class="p-4 border-b border-white/5 glass-hover cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(255,184,107,0.12);">
+                <span class="material-symbols-outlined text-warning" style="font-size:18px;">devices</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-on-surface">Account sharing suspected</span>
+                  <span class="text-[10px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded-full badge-status-warn">Med</span>
+                </div>
+                <div class="text-xs text-on-surface-variant mt-0.5">s***@o***.com · 4 distinct IPs across 3 countries in 48h</div>
+              </div>
+              <span class="material-symbols-outlined text-outline" style="font-size:18px;">chevron_right</span>
+            </div>
+          </div>
+
+          <!-- Alert 3 -->
+          <div class="p-4 border-b border-white/5 glass-hover cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(255,184,107,0.12);">
+                <span class="material-symbols-outlined text-warning" style="font-size:18px;">refresh</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-on-surface">Machine ID reset spike</span>
+                  <span class="text-[10px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded-full badge-status-warn">Med</span>
+                </div>
+                <div class="text-xs text-on-surface-variant mt-0.5">r***@p***.com · 3 resets in 14 days (limit: 1 per 30d)</div>
+              </div>
+              <span class="material-symbols-outlined text-outline" style="font-size:18px;">chevron_right</span>
+            </div>
+          </div>
+
+          <!-- Alert 4 -->
+          <div class="p-4 glass-hover cursor-pointer">
+            <div class="flex items-start gap-3">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0" style="background:rgba(255,184,107,0.10);">
+                <span class="material-symbols-outlined text-warning" style="font-size:18px;">local_offer</span>
+              </div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-semibold text-on-surface">Coupon velocity anomaly</span>
+                  <span class="text-[10px] uppercase tracking-widest font-bold px-1.5 py-0.5 rounded-full badge-status-warn">Low</span>
+                </div>
+                <div class="text-xs text-on-surface-variant mt-0.5">EDGE20 · 14 uses in 2h (avg: 1.8/day) · Scalp Daily</div>
+              </div>
+              <span class="material-symbols-outlined text-outline" style="font-size:18px;">chevron_right</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Audit log -->
+      <div class="glass rounded-2xl stagger">
+        <div class="flex items-center justify-between p-5 pb-3">
+          <div>
+            <div class="section-eyebrow mb-1">Audit Log <span class="anno-pin ml-1" title="Note 9">9</span></div>
+            <h3 class="font-headline font-bold text-on-surface text-lg">Recent admin actions</h3>
+          </div>
+          <button class="text-xs font-semibold text-primary hover:text-on-surface flex items-center gap-1">
+            Full log <span class="material-symbols-outlined" style="font-size:14px;">arrow_forward</span>
+          </button>
+        </div>
+
+        <div class="border-t border-white/5 max-h-[430px] overflow-y-auto">
+          <div class="p-4 border-b border-white/5">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:linear-gradient(135deg,#ffb86b,#ff9e52);color:#3a1800;">JY</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">Jason</span> granted lifetime access to <span class="font-mono text-primary">m.rivera@founder.co</span></div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">Reason: "Advisor board comp" · 14 min ago</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-b border-white/5">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:linear-gradient(135deg,#adc6ff,#4d8eff);color:#002e6a;">GW</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">George</span> increased seat quota for <span class="text-on-surface-variant">TradingEdge Academy</span> from 5 → 8</div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">Reason: "Launching community course" · 1h ago</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-b border-white/5">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:linear-gradient(135deg,#4edea3,#adc6ff);color:#002e6a;">DR</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">Derek</span> approved commission adjustment for <span class="text-on-surface-variant">Futures Flow TV</span></div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">+$120 retroactive · ticket #4829 · 3h ago</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-b border-white/5">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:linear-gradient(135deg,#ffb86b,#ff9e52);color:#3a1800;">JY</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">Jason</span> suspended coupon <span class="font-mono text-warning">SCALP50</span></div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">Reason: "Abused by Scalp Daily — exceeded admin cap" · 6h ago</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4 border-b border-white/5">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:linear-gradient(135deg,#4edea3,#adc6ff);color:#002e6a;">DR</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">Derek</span> onboarded new partner <span class="text-on-surface-variant">Scalp Daily</span></div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">Commission: 30% · 30-day clawback · 10h ago</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="p-4">
+            <div class="flex items-start gap-3">
+              <div class="w-7 h-7 rounded-full flex items-center justify-center font-bold text-[10px] shrink-0"
+                   style="background:rgba(255,255,255,0.08);color:#c2c6d6;">SYS</div>
+              <div class="flex-1 min-w-0">
+                <div class="text-sm text-on-surface"><span class="font-semibold">System</span> auto-revoked indicator access for <span class="font-mono text-primary">p***@y***.com</span></div>
+                <div class="text-[11px] text-on-surface-variant mt-0.5">Trigger: subscription.canceled webhook · 14h ago</div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- Footer hint -->
+    <div class="text-center text-xs text-outline-variant pb-4">
+      All admin actions logged · Hourly data refresh · <span class="text-warning">Do not share outside of founders</span>
+    </div>
+
+  </main>
+</div>
+
+<!-- ═══════════════════════════ NOTES PANEL TOGGLE ═══════════════════════════ -->
+<button id="notes-toggle" class="fixed bottom-6 right-6 z-50 glass-elevated rounded-full px-5 py-3 flex items-center gap-2 font-semibold text-sm hover:border-primary/40 transition-all"
+        style="box-shadow:0 12px 40px rgba(0,0,0,0.45);">
+  <span class="material-symbols-outlined text-warning" style="font-size:20px;">sticky_note_2</span>
+  <span class="text-on-surface">Mockup notes</span>
+  <span class="anno-pin">9</span>
+</button>
+
+<div id="notes-panel" class="notes-panel">
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <div class="section-eyebrow mb-1">Design notes</div>
+        <h2 class="font-headline font-black text-on-surface text-2xl">Admin Portal notes</h2>
+      </div>
+      <button id="notes-close" class="w-9 h-9 rounded-full glass flex items-center justify-center glass-hover">
+        <span class="material-symbols-outlined text-on-surface-variant" style="font-size:20px;">close</span>
+      </button>
+    </div>
+
+    <!-- Overview -->
+    <div class="glass rounded-xl p-4 mb-5">
+      <div class="text-xs uppercase tracking-widest font-bold text-warning mb-2">Overview</div>
+      <p class="text-sm text-on-surface-variant leading-relaxed">
+        This is the <span class="text-on-surface font-semibold">Internal Admin Portal — Founders view</span>.
+        Jason, George, and Derek each have full admin access. The orange banner
+        at the top and orange accent on the user chip are deliberate visual
+        markers that this is a privileged-access surface. Every action on this
+        portal is logged to the audit trail.
+      </p>
+      <p class="text-sm text-on-surface-variant leading-relaxed mt-2">
+        Data sources: <span class="text-on-surface font-semibold">Stripe</span> (revenue, customers, tax),
+        <span class="text-on-surface font-semibold">Rewardful</span> (partner attribution, commissions),
+        <span class="text-on-surface font-semibold">Supabase</span> (user identities, platform IDs, overrides, audit log, risk signals).
+      </p>
+    </div>
+
+    <div class="space-y-4">
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">1</span>
+          <div class="font-semibold text-on-surface">"Founders view" — role model</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          Today there are only 3 admin roles, all of them founders with full access.
+          Future hire roles (e.g., "Support Agent" who can see users but not grant
+          lifetime access, or "Analyst" who gets read-only BI access) are modeled
+          but not yet active. RLS policies are written with future roles in mind —
+          adding a new role won't require a schema change.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">2</span>
+          <div class="font-semibold text-on-surface">System status strip — critical, not optional</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          The four traffic lights represent <span class="text-on-surface font-semibold">the
+          infrastructure paths that, if they break, cost you money silently</span>.
+          Stripe webhooks failing → customers pay but don't get access, or cancel
+          but still have access. Rewardful sync breaking → commissions miscalculated.
+          NinjaTrader delivery failing → paying customer with no product. A yellow
+          or red light here is a P1 operational incident, not a dashboard curiosity.
+          We also send an email + Discord alert for any red state.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">3</span>
+          <div class="font-semibold text-on-surface">Churn: watchable, not alarming</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          3.2% monthly churn is typical for a prosumer SaaS at this price point
+          (industry avg 3-5%). The +0.4pp movement is shown in warning orange, not
+          red — it's a signal to watch, not a fire. Clicking into this KPI would
+          open a detail view with churn by plan tier, by cohort, by reason code.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">4</span>
+          <div class="font-semibold text-on-surface">Revenue recognition — the important one</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          <span class="text-on-surface font-semibold">Booked MRR</span> is what Stripe
+          shows you gross. <span class="text-on-surface font-semibold">Net MRR</span> subtracts
+          an estimated refund liability (based on historical refund rate × last 30
+          days of new revenue) and chargeback reserves. The gap between these two
+          numbers is what's actually yours to spend vs. what might claw back.
+          This is the single biggest source of "we thought we were bigger than we
+          were" surprises for early-stage SaaS — surfacing it prevents that.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">5</span>
+          <div class="font-semibold text-on-surface">Product mix · multi-platform ready</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          Currently NinjaTrader-only. The "Coming in phase 2" line is a real
+          architectural commitment — the data model distinguishes platform from
+          product. When TradingView launches, this panel grows a platform filter
+          and starts showing that split. No rework needed.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">6</span>
+          <div class="font-semibold text-on-surface">Partner leaderboard — internal only</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          Partners cannot see this ranking or each other's data. This is purely
+          internal. Clicking a partner row opens their detailed profile: lifetime
+          performance, commission history, seat quota, coupon settings, payout
+          schedule, contract terms, communication log. Manual override tools
+          (adjust commission, bump quota, extend clawback, suspend) live here too.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">7</span>
+          <div class="font-semibold text-on-surface">Geographic Top 5 — simple by design</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          A table, not a heatmap. At 5,000 users, a US-wide heatmap just shows
+          California, New York, Texas, and Florida. Not useful. This simple top-5
+          with a link to the full Geographic detail view (with US-state breakdown,
+          VAT/sales-tax status, per-region MRR) is more actionable. The detail
+          page is where you'd go if you're planning a state-specific compliance
+          review or a regional campaign.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">8</span>
+          <div class="font-semibold text-on-surface">Risk alerts — four flavors</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          Four categories of risk signal we track:
+          <br>• <span class="text-on-surface font-semibold">Chargebacks &amp; disputes</span> — real money, highest priority
+          <br>• <span class="text-on-surface font-semibold">Account sharing</span> — multi-IP, multi-country, rapid-session patterns
+          <br>• <span class="text-on-surface font-semibold">Machine ID reset abuse</span> — exceeding the 1/30-day limit
+          <br>• <span class="text-on-surface font-semibold">Coupon velocity anomaly</span> — a code being used at 10×+ its historical rate may indicate it leaked publicly
+          <br><br>The thresholds for each are admin-configurable. We err on the side
+          of "surface and let a human decide" rather than auto-suspend, because
+          wrongly suspending a paying customer is way worse than letting an
+          actual abuser run for another day while a human reviews.
+        </p>
+      </div>
+
+      <div class="glass rounded-xl p-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="anno-pin">9</span>
+          <div class="font-semibold text-on-surface">Audit log — immutable</div>
+        </div>
+        <p class="text-sm text-on-surface-variant">
+          Every admin action that affects a customer, partner, or financial record
+          is logged with <span class="text-on-surface font-semibold">who, what, when, why</span>.
+          Writes are append-only — even admins cannot delete or edit audit entries
+          (enforced at the RLS policy level). This protects you three ways: against
+          a compromised admin account, against an internal dispute ("who made this
+          change?"), and against external compliance requests.
+        </p>
+      </div>
+
+    </div>
+
+    <!-- Other screens -->
+    <div class="mt-6">
+      <div class="section-eyebrow mb-3">Other screens in this portal</div>
+      <div class="glass rounded-xl p-4 space-y-3">
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Customers</div>
+          <div class="text-xs text-on-surface-variant">Search, filter, and drill into any customer. Shows subscription, billing history, platform IDs, IP history, support tickets, partner attribution, manual override buttons (grant lifetime access, extend trial, force ID reset, refund).</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Revenue</div>
+          <div class="text-xs text-on-surface-variant">MRR waterfall, cohort retention heatmap, recognition detail, plan-tier breakdowns, expansion/contraction tracking, per-product MRR, year-over-year growth.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Products</div>
+          <div class="text-xs text-on-surface-variant">Full SKU catalog, adoption per product, pricing experiments, version control, platform delivery status, product-SKU ↔ commission-rate mapping.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Partners</div>
+          <div class="text-xs text-on-surface-variant">All partners list, onboarding queue, per-partner profile + performance + settings, commission rate adjustments, seat quota management, suspension/termination flow, payout approval queue.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Risk</div>
+          <div class="text-xs text-on-surface-variant">Full alert queue with filters, chargeback workflow (upload evidence, track dispute), account-sharing investigation tools, machine-ID reset history, fraud scoring, suspension workflow.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Operations</div>
+          <div class="text-xs text-on-surface-variant">Webhook delivery log, sync job history, infrastructure health, feature flags, content access log (every indicator grant/revoke event), background job status.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Audit Log</div>
+          <div class="text-xs text-on-surface-variant">Full immutable audit log with filters by actor, action type, target, date range. Exportable for compliance/investigation purposes. No edits, no deletes — ever.</div>
+        </div>
+        <div>
+          <div class="font-semibold text-on-surface text-sm">Settings</div>
+          <div class="text-xs text-on-surface-variant">Admin roles &amp; users, global thresholds (refund window, clawback period, risk alert thresholds, coupon caps, seat-quota defaults), tax settings, email templates, feature flags.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open questions -->
+    <div class="mt-6">
+      <div class="section-eyebrow mb-3" style="color:#ffb86b;">Open questions for board</div>
+      <div class="glass rounded-xl p-4" style="border-color:rgba(255,184,107,0.25);">
+        <ul class="text-sm text-on-surface-variant space-y-2 list-disc list-inside">
+          <li><span class="text-on-surface font-semibold">Admin role tiers</span> — when you hire, who gets what level of access? Current mockup assumes 3 founders-only; needs a defined role matrix for future hires.</li>
+          <li><span class="text-on-surface font-semibold">Risk alert thresholds</span> — when is an account-sharing flag triggered (N IPs in M hours, M countries)? Too tight = noise, too loose = missed fraud.</li>
+          <li><span class="text-on-surface font-semibold">Lifetime access ceiling</span> — should there be a numeric cap on how many free lifetime grants can exist company-wide? Protects against "oops, we gave away 50 subs over 2 years".</li>
+          <li><span class="text-on-surface font-semibold">Chargeback handling SLA</span> — who owns responding to disputes? Stripe gives you ~7-21 days. Need a defined owner.</li>
+          <li><span class="text-on-surface font-semibold">Cohort retention tracking</span> — shown only as a link on this dashboard. Should it be a KPI card on page 1 too?</li>
+          <li><span class="text-on-surface font-semibold">Founder notification preferences</span> — what alerts should page each founder? (Chargeback → Jason? Partner issues → George? etc.)</li>
+          <li><span class="text-on-surface font-semibold">External BI tool integration</span> — do we want to export this data to Metabase or a similar tool once we've got real volumes, or keep BI in-portal?</li>
+          <li><span class="text-on-surface font-semibold">Discord/email alerts integration</span> — should system status alerts post to Discord? To a specific channel? With what level of detail?</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Manual overrides callout -->
+    <div class="mt-6">
+      <div class="section-eyebrow mb-3" style="color:#4edea3;">Manual override toolkit</div>
+      <div class="glass rounded-xl p-4">
+        <p class="text-sm text-on-surface-variant mb-3">
+          Not shown on this dashboard but available from any customer or partner detail page. All actions are logged in the audit trail and may require a reason string before committing.
+        </p>
+        <ul class="text-sm text-on-surface-variant space-y-1.5 list-disc list-inside">
+          <li><span class="text-on-surface font-semibold">Grant lifetime access</span> — comp account, advisor pass, giveaway winner</li>
+          <li><span class="text-on-surface font-semibold">Extend trial</span> — "trial had a bug, give them another 14 days"</li>
+          <li><span class="text-on-surface font-semibold">Force machine-ID reset</span> — override the 1-per-30-day limit for support cases</li>
+          <li><span class="text-on-surface font-semibold">Issue refund</span> — triggers Stripe refund + automatic commission clawback</li>
+          <li><span class="text-on-surface font-semibold">Adjust partner commission</span> — retroactive correction, signing bonus, clawback waiver</li>
+          <li><span class="text-on-surface font-semibold">Bump partner seat quota</span> — upgrade tier, custom arrangement</li>
+          <li><span class="text-on-surface font-semibold">Suspend partner</span> — rule violation, contract termination</li>
+          <li><span class="text-on-surface font-semibold">Revoke free seat</span> — (mirrors the partner-side revoke, but admin can do cross-partner)</li>
+          <li><span class="text-on-surface font-semibold">Resend webhook</span> — manually replay a Stripe event if sync broke</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="h-8"></div>
+  </div>
+</div>
+
+<script>
+  /* ─────────── Notes panel ─────────── */
+  const notesPanel = document.getElementById('notes-panel');
+  const notesToggle = document.getElementById('notes-toggle');
+  const notesClose = document.getElementById('notes-close');
+  notesToggle.addEventListener('click', () => notesPanel.classList.add('open'));
+  notesClose.addEventListener('click', () => notesPanel.classList.remove('open'));
+
+  /* ─────────── ECharts — MRR Stacked Area ─────────── */
+  const mrrChart = echarts.init(document.getElementById('mrr-chart'), null, { renderer:'svg' });
+  const mrrOpt = {
+    animation: true,
+    animationDuration: 1000,
+    animationEasing: 'cubicOut',
+    grid: { top:18, right:12, bottom:28, left:58, containLabel:false },
+    tooltip: {
+      trigger:'axis',
+      backgroundColor:'rgba(15,26,46,0.95)',
+      borderColor:'rgba(173,198,255,0.25)',
+      borderWidth:1,
+      textStyle:{ color:'#dae2fd', fontFamily:'Inter', fontSize:12 },
+      axisPointer:{ type:'line', lineStyle:{ color:'rgba(173,198,255,0.22)', width:1 } },
+      valueFormatter: (v) => '$' + v.toLocaleString(),
+    },
+    xAxis: {
+      type:'category',
+      data:['Nov','Dec','Jan','Feb','Mar','Apr'],
+      axisLine:{ lineStyle:{ color:'rgba(255,255,255,0.08)' } },
+      axisTick:{ show:false },
+      axisLabel:{ color:'#8c909f', fontFamily:'Inter', fontSize:11 },
+    },
+    yAxis: {
+      type:'value',
+      axisLine:{ show:false },
+      axisTick:{ show:false },
+      splitLine:{ lineStyle:{ color:'rgba(255,255,255,0.04)' } },
+      axisLabel:{ color:'#8c909f', fontFamily:'Inter', fontSize:11, formatter:(v) => '$' + (v/1000) + 'k' },
+    },
+    series:[
+      {
+        name:'Standard',
+        type:'line', stack:'total', smooth:true,
+        symbol:'none',
+        data:[12800, 15200, 18400, 22600, 26900, 28620],
+        lineStyle:{ width:0 },
+        areaStyle:{ color:'rgba(78,222,163,0.55)' },
+        itemStyle:{ color:'#4edea3' },
+      },
+      {
+        name:'Pro',
+        type:'line', stack:'total', smooth:true,
+        symbol:'none',
+        data:[34200, 41800, 52600, 61200, 69400, 73930],
+        lineStyle:{ width:0 },
+        areaStyle:{ color:'rgba(173,198,255,0.55)' },
+        itemStyle:{ color:'#adc6ff' },
+      },
+      {
+        name:'Terminal',
+        type:'line', stack:'total', smooth:true,
+        symbol:'none',
+        data:[9800, 12600, 16200, 19800, 22600, 25920],
+        lineStyle:{ width:0 },
+        areaStyle:{ color:'rgba(255,184,107,0.55)' },
+        itemStyle:{ color:'#ffb86b' },
+      },
+    ],
+  };
+  mrrChart.setOption(mrrOpt);
+
+  /* ─────────── ECharts — Product donut ─────────── */
+  const productPie = echarts.init(document.getElementById('product-pie'), null, { renderer:'svg' });
+  const productPieOpt = {
+    animation:true,
+    animationDuration:900,
+    tooltip:{
+      trigger:'item',
+      backgroundColor:'rgba(15,26,46,0.95)',
+      borderColor:'rgba(173,198,255,0.25)',
+      borderWidth:1,
+      textStyle:{ color:'#dae2fd', fontFamily:'Inter', fontSize:12 },
+      formatter: '{b}: {c} ({d}%)',
+    },
+    series:[{
+      name:'Subscribers',
+      type:'pie',
+      radius:['55%','78%'],
+      avoidLabelOverlap:false,
+      label:{ show:false },
+      labelLine:{ show:false },
+      itemStyle:{
+        borderColor:'#0b1326',
+        borderWidth:3,
+      },
+      data:[
+        { value:382, name:'VWAP Wave · Pro',       itemStyle:{ color:'#4edea3' } },
+        { value:164, name:'VWAP Wave · Terminal',  itemStyle:{ color:'#adc6ff' } },
+        { value:142, name:'EMA Ribbons · Pro',     itemStyle:{ color:'#a4c9ff' } },
+        { value:97,  name:'VWAP Wave · Standard',  itemStyle:{ color:'#ffb86b' } },
+        { value:62,  name:'Order Flow Delta',      itemStyle:{ color:'#c2c6d6' } },
+      ],
+    }],
+  };
+  productPie.setOption(productPieOpt);
+
+  window.addEventListener('resize', () => {
+    mrrChart.resize();
+    productPie.resize();
+  });
+</script>
+</body>
+</html>
